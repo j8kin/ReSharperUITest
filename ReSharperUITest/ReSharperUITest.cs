@@ -53,7 +53,7 @@ namespace ReSharperUITest
 
             // close "Options" window if it is not closed
             var optionWindow = _driver.FindElementsByName("Options").FirstOrDefault();
-            optionWindow?.FindElementsByName("Save").FirstOrDefault()?.Click();
+            optionWindow?.FindElementsByName("Cancel").FirstOrDefault()?.Click();
 
         }
 
