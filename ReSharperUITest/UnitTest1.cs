@@ -1,13 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 namespace ReSharperUITest
 {
-    [TestClass]
-    public class UnitTest1
+    [TestFixture]
+    public class ReSharperTest
     {
-        [TestMethod]
-        public void TestMethod1()
+        [Test]
+        public void OpenResharperOptions()
         {
         }
     }
