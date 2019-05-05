@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSharperUITest", "ReSharperUITest\ReSharperUITest.csproj", "{FE64A2A8-67B1-463C-A150-E875B1C9FABA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteHostUITestExecution", "RemoteHostUITestExecution\RemoteHostUITestExecution.csproj", "{C2E78466-4DD1-4686-A2C1-D52FE0AA9640}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{FE64A2A8-67B1-463C-A150-E875B1C9FABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE64A2A8-67B1-463C-A150-E875B1C9FABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE64A2A8-67B1-463C-A150-E875B1C9FABA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E78466-4DD1-4686-A2C1-D52FE0AA9640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E78466-4DD1-4686-A2C1-D52FE0AA9640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E78466-4DD1-4686-A2C1-D52FE0AA9640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E78466-4DD1-4686-A2C1-D52FE0AA9640}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
