@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using System.Text.RegularExpressions;
+using System.Threading;
 using NUnit.Framework;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Interactions;
@@ -11,50 +14,67 @@ namespace ReSharperUITest
     [TestFixture]
     public class ReSharperTest
     {
+        private const string WinAppDriverPath =
+            "\"c:\\Program Files (x86)\\Windows Application Driver\\WinAppDriver.exe\"";
+
         private const string WindowsApplicationDriverUrl = "http://127.0.0.1:4723";
 
         private WindowsDriver<WindowsElement> _driver;
-        private WindowsDriver<WindowsElement> _desktopSession;
+        private Process _winAppDriverProcess;
 
         [OneTimeSetUp]
         public void BeforeAllTests()
         {
+            // Start WinAppDriver with Administrative rights
+            // User "nunittest" with password "Passw0rd!" should be created on remote host
+            _winAppDriverProcess = new Process
+            {
+                StartInfo =
+                {
+                    FileName = WinAppDriverPath,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    UserName = "nunittest"
+                }
+            };
+            var secure = new SecureString();
+            foreach (var c in "Passw0rd!".ToCharArray())
+            {
+                secure.AppendChar(c);
+            }
+
+            _winAppDriverProcess.StartInfo.Password = secure;
+            //_winAppDriverProcess.Start();
+
             // Start visual studio on remote Host
             // path to folder with devenv.exe must be placed into PATH
             // environment variable
-        }
-        
-        [OneTimeTearDown]
-        public void AfterAllTests()
-        {
-            // Close visual studio on Remote Host
-            //_driver?.Quit();
-            //_driver = null;
-        }
-
-        [SetUp]
-        public void BeforeEachTest()
-        {
-            // Create a session for Desktop
-            var desktopCapabilities = new DesiredCapabilities();
-            desktopCapabilities.SetCapability("app", "Root");
-            _desktopSession =
-                new WindowsDriver<WindowsElement>(new Uri(WindowsApplicationDriverUrl), desktopCapabilities);
-            Assert.IsNotNull(_desktopSession);
-            // find Microsoft Visual Studio window todo replace with partially Element Name
-            var visualStudioWindow = _desktopSession.FindElementByName("ReSharperUITest - Microsoft Visual Studio ");
-            var visualStudioTopLevelWindowHandle =
-                int.Parse(visualStudioWindow.GetAttribute("NativeWindowHandle")).ToString("x");
-
-            // Create session for already running Microsoft Visual Studio
             var appCapabilities = new DesiredCapabilities();
-            appCapabilities.SetCapability("appTopLevelWindow", visualStudioTopLevelWindowHandle);
+            //appCapabilities.SetCapability("appTopLevelWindow", visualStudioTopLevelWindowHandle);
+            appCapabilities.SetCapability("app", "devenv.exe");
             _driver = new WindowsDriver<WindowsElement>(new Uri(WindowsApplicationDriverUrl), appCapabilities);
             Assert.IsNotNull(_driver);
 
             // Set implicit timeout to 1.5 seconds to make element search to retry every 500 ms for at most three times
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1.5);
 
+            // Pause due to my PC is too slow and it is necessary to perform additional pause to start Visual Studio
+            Thread.Sleep(20000);
+        }
+
+        [OneTimeTearDown]
+        public void AfterAllTests()
+        {
+            // Close visual studio on Remote Host
+            _driver?.Quit();
+            _driver = null;
+
+            //_winAppDriverProcess?.Kill();
+        }
+
+        [SetUp]
+        public void BeforeEachTest()
+        {
             // Set managed memory usage to not displayed this means that test will always starts on the same point
             if (IsManagedMemoryDisplayed())
             {
@@ -66,9 +86,8 @@ namespace ReSharperUITest
         public void AfterEachTest()
         {
             // close "Options" window if it is not closed
-            var optionWindow = _driver.FindElementsByName("Options").FirstOrDefault();
+            var optionWindow = _driver?.FindElementsByName("Options").FirstOrDefault();
             optionWindow?.FindElementsByName("Cancel").FirstOrDefault()?.Click();
-
         }
 
         [Test]
@@ -76,9 +95,8 @@ namespace ReSharperUITest
         {
             _driver.FindElementByName("ReSharper").Click();
             // Open ReSharper Option Dialog
-            //_driver.FindElementByXPath($"//MenuItem[contains(@Name, '_Options')]").Click();
-            // for unknown reason FindElementByXPath($"//MenuItem[starts-with(@Name, \"Options…\")]") not able to find "Options…" menu item
-            _driver.FindElementByName("ReSharper").FindElementsByXPath(".//*").First(p => p.Text == "Options…").Click();
+            // for unknown reason FindElementByXPath($"//MenuItem[starts-with(@Text, \"Options…\")]") not able to find "Options…" menu item
+            _driver.FindElementsByClassName("MenuItem").First(p=>p.Text== "Options…").Click();
 
         }
 
@@ -90,7 +108,7 @@ namespace ReSharperUITest
             // Open ReSharper Option Dialog
             // for unknown reason FindElementByXPath($"//MenuItem[starts-with(@Text, \"Options…\")]") not able to find "Options…" menu item
             //  so get all children and click on child with "Options…" text
-            _driver.FindElementByName("ReSharper").FindElementsByXPath(".//*").First(p => p.Text == "Options…").Click();
+            _driver.FindElementsByClassName("MenuItem").First(p => p.Text == "Options…").Click();
 
             // Find Option Window
             var optionWindow = _driver.FindElementByName("Options");
@@ -145,8 +163,9 @@ namespace ReSharperUITest
             _driver.FindElementByName("ReSharper").Click();
 
             // Open ReSharper Option Dialog
-            _driver.FindElementByName("ReSharper").FindElementsByXPath(".//*").First(p => p.Text == "Options…").Click();
-            
+            //_driver.FindElementByName("ReSharper").FindElementsByXPath(".//*").First(p => p.Text == "Options…").Click();
+            _driver.FindElementsByClassName("MenuItem").First(p => p.Text == "Options…").Click();
+
             // Find Option Window
             var optionWindow = _driver.FindElementByName("Options");
 
@@ -179,7 +198,7 @@ namespace ReSharperUITest
         /// <returns></returns>
         private bool IsManagedMemoryDisplayed()
         {
-            return Regex.IsMatch(_driver.FindElementByClassName("RichTextPresenter").Text, "\\d+ MB");
+            return _driver.FindElementsByClassName("RichTextPresenter").Count != 0 && Regex.IsMatch(_driver.FindElementByClassName("RichTextPresenter").Text, "\\d+(\\.\\d+)* MB");
         }
     }
 }
