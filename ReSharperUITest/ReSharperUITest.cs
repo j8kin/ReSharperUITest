@@ -169,6 +169,14 @@ namespace ReSharperUITest
             optionWindow.FindElementByName("Save").Click();
         }
 
+        /// <summary>
+        /// Return status of Managed memory.
+        /// 
+        /// The assumption is that Managed Memory consists of any number of digit and then "MB" after space
+        ///   for real test it could not work since it could be in GB, so need to confirm and update if it is true
+        /// This function is for current demonstration
+        /// </summary>
+        /// <returns></returns>
         private bool IsManagedMemoryDisplayed()
         {
             return Regex.IsMatch(_driver.FindElementByClassName("RichTextPresenter").Text, "\\d+ MB");
