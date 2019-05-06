@@ -44,7 +44,7 @@ namespace ReSharperUITest
             }
 
             _winAppDriverProcess.StartInfo.Password = secure;
-            //_winAppDriverProcess.Start();
+            _winAppDriverProcess.Start(); // this stuff is not verified :(
 
             // Start visual studio on remote Host
             // path to folder with devenv.exe must be placed into PATH
