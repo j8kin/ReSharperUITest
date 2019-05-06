@@ -69,7 +69,7 @@ namespace ReSharperUITest
             _driver?.Quit();
             _driver = null;
 
-            //_winAppDriverProcess?.Kill();
+            _winAppDriverProcess?.Kill(); 
         }
 
         [SetUp]
